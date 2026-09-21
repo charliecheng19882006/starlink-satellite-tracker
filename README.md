@@ -1,70 +1,226 @@
-# Getting Started with Create React App
+# Starlink Satellite Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive web application for discovering and tracking nearby Starlink satellites based on an observer's geographic location.
 
-## Available Scripts
+The application retrieves satellite data from the N2YO API and visualizes selected satellites on an animated world map built with React, D3.js, and HTML Canvas.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- Search for nearby Starlink satellites based on observer location
+- Configure longitude, latitude, elevation, minimum altitude, and tracking duration
+- Retrieve nearby satellite information from the N2YO API
+- Display satellite names and launch dates
+- Select and track multiple satellites simultaneously
+- Retrieve predicted satellite positions for a specified time period
+- Visualize satellite movement on an animated world map
+- Display satellite positions using geographic map projection
+- Render multiple satellites with distinct colors
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Tech Stack
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Frontend
 
-### `npm test`
+- React
+- JavaScript
+- Ant Design
+- Axios
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Data Visualization
 
-### `npm run build`
+- D3.js
+- D3 Geo
+- D3 Geo Projection
+- TopoJSON
+- HTML Canvas
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### External Data
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- N2YO Satellite API
+- World Atlas TopoJSON dataset
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## How It Works
 
-### `npm run eject`
+The application allows the user to provide an observer location:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Longitude
+- Latitude
+- Elevation
+- Minimum altitude
+- Tracking duration
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The application then queries the N2YO API for nearby Starlink satellites.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```text
+Observer Location
+        |
+        v
+N2YO Nearby Satellite API
+        |
+        v
+Nearby Starlink Satellites
+        |
+        v
+Select Satellites
+        |
+        v
+N2YO Satellite Position API
+        |
+        v
+Predicted Position Data
+        |
+        v
+D3 Geographic Projection
+        |
+        v
+Animated World Map
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Users can select one or more satellites from the returned list and track their predicted movement on the world map.
 
-## Learn More
+## Application Architecture
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The application is organized into several React components:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```text
+App
+ |
+ +-- Header
+ |
+ +-- Main
+ |    |
+ |    +-- SatSetting
+ |    |
+ |    +-- SatelliteList
+ |    |
+ |    +-- WorldMap
+ |
+ +-- Footer
+```
 
-### Code Splitting
+### SatSetting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Provides the form used to configure the observer location and tracking parameters.
 
-### Analyzing the Bundle Size
+Input validation is handled using Ant Design form components.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### SatelliteList
 
-### Making a Progressive Web App
+Displays nearby Starlink satellites returned by the N2YO API.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Users can select multiple satellites and send the selected satellites to the map for tracking.
 
-### Advanced Configuration
+### WorldMap
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Handles the geographic visualization and satellite animation.
 
-### Deployment
+The world map is generated from TopoJSON geographic data using D3.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Satellite longitude and latitude coordinates are converted into canvas coordinates using the Kavrayskiy VII geographic projection.
 
-### `npm run build` fails to minify
+Two HTML Canvas layers are used:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- A base layer for the world map and geographic grid
+- A tracking layer for animated satellite positions
+
+This allows the satellite animation to be updated independently without redrawing the underlying world map.
+
+## Satellite Tracking
+
+After satellites are selected, the application retrieves predicted position data for each satellite.
+
+Multiple requests are performed concurrently and the returned position data is used to animate satellite movement over time.
+
+Each satellite is rendered using a different color and labeled on the map.
+
+## API
+
+Satellite data is provided by the N2YO API.
+
+The application uses endpoints for:
+
+- Finding satellites above an observer location
+- Retrieving predicted satellite positions
+
+Starlink satellites are queried using the Starlink satellite category.
+
+## Project Structure
+
+```text
+src/
+├── assets/
+│   └── images/
+│
+├── components/
+│   ├── App.js
+│   ├── Footer.js
+│   ├── Header.js
+│   ├── Main.js
+│   ├── SatSetting.js
+│   ├── SatelliteList.js
+│   └── WorldMap.js
+│
+├── styles/
+│   ├── App.css
+│   ├── Footer.css
+│   ├── Header.css
+│   ├── Main.css
+│   ├── SatSetting.css
+│   ├── SatelliteList.css
+│   └── WorldMap.css
+│
+├── constants.js
+├── index.css
+├── index.js
+└── setupTests.js
+```
+
+## Running the Project
+
+### Prerequisites
+
+- Node.js
+- npm
+- N2YO API key
+
+Clone the repository:
+
+```bash
+git clone https://github.com/charliecheng19882006/starlink-satellite-tracker.git
+cd starlink-satellite-tracker
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm start
+```
+
+The application will run locally using the React development server.
+
+> The project depends on external satellite APIs and was originally built with an earlier React ecosystem. Additional configuration or dependency updates may be required when running the project today.
+
+## Future Improvements
+
+Potential improvements include:
+
+- Move external API requests behind a backend service
+- Improve API key management
+- Upgrade React and project dependencies
+- Add additional satellite categories
+- Improve map interaction and satellite selection
+- Add satellite trajectory paths
+- Add automated tests
+- Add responsive mobile support
+- Containerize and deploy the application
+
+## Project Purpose
+
+This project was built to explore frontend development, REST API integration, geographic data visualization, and real-time-style animation using React and D3.
+
+It demonstrates how external satellite data can be transformed into an interactive geospatial visualization in a web application.
